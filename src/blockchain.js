@@ -65,3 +65,10 @@ const isNewBlockValid = (candidateBlock, latestBlock) => {
   }
   return true;
 };
+
+const isNewStructureValid = block =>
+  typeof block.index === "number" &&
+  typeof block.hash === "string" &&
+  typeof block.previousHash === "string" &&
+  typeof block.timestamp === "number" &&
+  typeof block.data === "string";
