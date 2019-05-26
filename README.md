@@ -1,3 +1,3 @@
-# 🚗 citycoin
+# 🚗 Citycoin
 
-citycoin!
+Citycoin, made in NodeJS
