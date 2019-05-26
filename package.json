@@ -1,0 +1,8 @@
+{
+  "name": "citycoin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/dl0312/citycoin",
+  "author": "Geon Lee <leegun2003@gmail.com>",
+  "license": "MIT"
+}
