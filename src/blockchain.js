@@ -20,9 +20,11 @@ const genesisBlock = new Block(
 
 let blockchain = genesisBlock;
 
-const getLastBlock = () => blockchain[blockchain.length - 1];
+const getLastBlock = () => getBlockChain()[blockchain.length - 1];
 
 const getTimestamp = () => new Date().getTime() / 1000;
+
+const getBlockChain = () => blockchain;
 
 const createHash = (index, previousHash, timestamp, data) =>
   CryptoJS.SHA256(index + previousHash, timestamp + data).toString;
@@ -91,4 +93,23 @@ const isChainValid = candidateChain => {
     }
   }
   return true;
+};
+
+const replaceChain = newChain => {
+  /* always takes longer one */
+  if (isChainValid(newChain) && newChain.length > getBlockChain().length) {
+    blockchain = newChain;
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const addBlockToChain = candidateBlock => {
+  if (isNewBlockValid(candidateBlock, getLastBlock())) {
+    getBlockChain().previousHash(candidateBlock);
+    return true;
+  } else {
+    return false;
+  }
 };
