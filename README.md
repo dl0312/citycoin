@@ -1,3 +1,3 @@
 # 🚗 Citycoin
 
-Citycoin, made in NodeJS
+Citycoin, Bitcoin clone made in NodeJS, TypeScript
