@@ -9,7 +9,7 @@ class Block {
   ): string =>
     CryptoJS.SHA256(index + previousHash + timestamp + data).toString();
 
-  static validateStructure = (block: Block): boolean => {
+  static isBlockStructureValid = (block: Block): boolean => {
     return (
       typeof block.index === "number" &&
       typeof block.hash === "string" &&
@@ -72,7 +72,7 @@ const createNewBlock = (data: string): Block => {
     newTimestamp,
     data
   );
-  addBlock(newBlock);
+  addBlockToChain(newBlock);
   return newBlock;
 };
 
@@ -85,7 +85,7 @@ const getHashforBlock = (aBlock: Block): string =>
   );
 
 const isBlockValid = (candidateBlock: Block, previousBlock: Block): boolean => {
-  if (!Block.validateStructure(candidateBlock)) {
+  if (!Block.isBlockStructureValid(candidateBlock)) {
     return false;
   } else if (previousBlock.index + 1 !== candidateBlock.index) {
     return false;
@@ -97,10 +97,50 @@ const isBlockValid = (candidateBlock: Block, previousBlock: Block): boolean => {
   return true;
 };
 
-const addBlock = (candidateBlock: Block): void => {
-  if (isBlockValid(candidateBlock, getLatestBlock())) {
-    blockchain.push(candidateBlock);
+const isChainValid = (candidateChain: Block[]): boolean => {
+  const isGenesisValid = (block: Block) => {
+    return JSON.stringify(block) === JSON.stringify(genesisBlock);
+  };
+  if (!isGenesisValid(candidateChain[0])) {
+    console.log(
+      "The candidateChains's genesisBlock is not the same as our genesisBlock"
+    );
+    return false;
+  }
+  for (let i = 1; i < candidateChain.length; i++) {
+    if (!isBlockValid(candidateChain[i], candidateChain[i - 1])) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const replaceChain = (candidateChain: Block[]): boolean => {
+  if (
+    isChainValid(candidateChain) &&
+    candidateChain.length > getBlockchain().length
+  ) {
+    blockchain = candidateChain;
+    return true;
+  } else {
+    return false;
   }
 };
 
-export { Block, getBlockchain, createNewBlock, getLatestBlock };
+const addBlockToChain = (candidateBlock: Block): boolean => {
+  if (isBlockValid(candidateBlock, getLatestBlock())) {
+    blockchain.push(candidateBlock);
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export {
+  Block,
+  getBlockchain,
+  createNewBlock,
+  getLatestBlock,
+  addBlockToChain,
+  replaceChain
+};

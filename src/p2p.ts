@@ -2,7 +2,12 @@ import * as WebSockets from "ws";
 import { Server as HTTH_Server } from "http";
 import { Server as HTTHS_Server } from "https";
 import { Socket } from "net";
-import { getLatestBlock, Block } from "./blockchain";
+import {
+  getLatestBlock,
+  Block,
+  addBlockToChain,
+  replaceChain
+} from "./blockchain";
 
 const sockets: unknown[] = [];
 
@@ -68,11 +73,15 @@ const handleSocketMessages = (ws: WebSockets) => {
     console.log(message);
     switch (message.type) {
       case GET_LATEST:
-        sendMessage(ws, getLatestBlock());
+        sendMessage(ws, responseLatest());
         break;
-      case GET_LATEST:
+      case GET_ALL:
         break;
-      case GET_LATEST:
+      case BLOCKCHAIN_RESPONSE:
+        const receivedBlocks = message.data;
+        if (receivedBlocks === null) {
+          break;
+        }
         break;
       default:
         break;
@@ -80,8 +89,32 @@ const handleSocketMessages = (ws: WebSockets) => {
   });
 };
 
+const handleBlockchainResponse = (receivedBlocks: Block[]) => {
+  if (receivedBlocks.length === 0) {
+    console.log("Received blocks have a length of 0");
+    return;
+  }
+  const latestBlockReceived: Block = receivedBlocks[receivedBlocks.length - 1];
+  if (!Block.isBlockStructureValid(latestBlockReceived)) {
+    console.log("The block structure of the block received is not valid");
+    return;
+  }
+  const latestBlock = getLatestBlock();
+  if (latestBlockReceived.index > latestBlock.index) {
+    if (latestBlock.hash === latestBlockReceived.previousHash) {
+      addBlockToChain(latestBlockReceived);
+    } else if (receivedBlocks.length === 1) {
+      // to do, get all the blocks, we are waaaay behind
+    } else {
+      replaceChain(receivedBlocks);
+    }
+  }
+};
+
 const sendMessage = (ws: WebSockets, message: object) =>
   ws.send(JSON.stringify(message));
+
+const responseLatest = () => blockchainResponse([getLatestBlock()]);
 
 const handleSocketError = (ws: WebSockets) => {
   const closeSocketConnection = (ws: WebSockets) => {
