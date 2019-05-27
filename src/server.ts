@@ -2,7 +2,9 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as morgan from "morgan";
 import * as dotenv from "dotenv";
+import { startP2PServer } from "./p2p";
 import { getBlockchain, createNewBlock } from "./blockchain";
+import { Server } from "http";
 
 dotenv.config();
 
@@ -25,4 +27,7 @@ app.post("/blocks", (req: express.Request, res: express.Response) => {
   res.send(newBlock);
 });
 
-app.listen(PORT, () => console.log(`✔ Citycoin Server running on ${PORT}`));
+const server: Server = app.listen(PORT, () =>
+  console.log(`✔ Citycoin Server running on ${PORT}`)
+);
+startP2PServer(server);
