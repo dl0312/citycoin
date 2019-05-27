@@ -2,7 +2,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as morgan from "morgan";
 import * as dotenv from "dotenv";
-import { startP2PServer } from "./p2p";
+import { startP2PServer, connectToPeers } from "./p2p";
 import { getBlockchain, createNewBlock } from "./blockchain";
 import { Server } from "http";
 
@@ -25,6 +25,13 @@ app.post("/blocks", (req: express.Request, res: express.Response) => {
   } = req;
   const newBlock = createNewBlock(data);
   res.send(newBlock);
+});
+
+app.post("/peers", (req: express.Request, res: express.Response) => {
+  const {
+    body: { peer }
+  } = req;
+  connectToPeers(peer);
 });
 
 const server: Server = app.listen(PORT, () =>
