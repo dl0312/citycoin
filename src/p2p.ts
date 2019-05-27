@@ -17,12 +17,22 @@ const startP2PServer = (server: HTTH_Server | HTTHS_Server) => {
 
 const initSocketConnection = (socket: WebSockets) => {
   sockets.push(socket);
+  handleSocketError(socket);
   socket.on("message", (data: unknown) => {
     console.log(data);
   });
   setTimeout(() => {
     socket.send("welcome");
   }, 5000);
+};
+
+const handleSocketError = (ws: WebSockets) => {
+  const closeSocketConnection = (ws: WebSockets) => {
+    ws.close();
+    sockets.splice(sockets.indexOf(ws), 1);
+  };
+  ws.on("close", () => closeSocketConnection(ws));
+  ws.on("error", () => closeSocketConnection(ws));
 };
 
 const connectToPeers = (newPeer: string) => {
