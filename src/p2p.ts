@@ -10,13 +10,19 @@ const getSockets = () => sockets;
 const startP2PServer = (server: HTTH_Server | HTTHS_Server) => {
   const wsServer = new WebSockets.Server({ server });
   wsServer.on("connection", ws => {
-    console.log(`Hello! Mr.Socket`);
+    initSocketConnection(ws);
   });
   console.log("🕸️ Citycoin P2P Server Running!");
 };
 
 const initSocketConnection = (socket: WebSockets) => {
   sockets.push(socket);
+  socket.on("message", (data: unknown) => {
+    console.log(data);
+  });
+  setTimeout(() => {
+    socket.send("welcome");
+  }, 5000);
 };
 
 const connectToPeers = (newPeer: string) => {
